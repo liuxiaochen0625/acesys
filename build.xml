@@ -1,0 +1,122 @@
+<?xml version="1.0"?>
+<project name="Acesys" default="deploy-db">
+
+    <!-- properies -->
+    <property file="build.properties" />
+    <property name="src.dir" value="${basedir}/src" />
+    <property name="report.dir" value="${basedir}/report" />
+    <property name="lib.dir" value="${basedir}/lib" />
+    <property name="dist.dir" value="${basedir}/dist" />
+    <property name="doc.dir" value="${basedir}/doc" />
+    <property name="test.dir" value="${basedir}/test" />
+    <property name="target.dir" value="${basedir}/target" />
+    <property name="classes.dir" value="WebRoot/WEB-INF/classes" />
+    <property name="target.classes.dir" value="${target.dir}/classes" />
+    <property name="target.testclasses.dir" value="${target.dir}/test-classes" />
+    <property name="webroot.dir" value="${basedir}/WebRoot" />
+    <property name="db.dir" value="${basedir}/db" />
+    <!-- 定义classpath -->
+    <path id="master-classpath">
+        <fileset file="WebRoot/WEB-INF/lib/*.jar" />
+        <pathelement path="${webroot.dir}/WEB-INF/classes" />
+    </path>
+
+    <!--清除所有输出目录-->
+    <target name="clean" description="清空所有输出目录">
+        <echo message="清空所有输出目录"/>
+        <delete dir="${target.classes.dir}" />
+        <delete dir="${target.testclasses.dir}" />
+        <delete dir="${target.dir}" />
+        <delete dir="${dist.dir}" />
+        <delete dir="${doc.dir}" />
+    </target>
+    <!-- 初始化任务 -->
+    <target name="init" depends="clean">
+    </target>
+
+    <!-- 编译 -->
+    <target name="compile" depends="init" description="编译所有的java类">
+        <echo message="编译所有的java类"/>
+        <mkdir dir="${target.classes.dir}" />
+        <javac srcdir="${src.dir}" destdir="${target.classes.dir}" target="1.5">
+            <classpath refid="master-classpath" />
+        </javac>
+    </target>
+
+    <!-- 测试  	-->
+    <target name="test" depends="compile" description="进行单元测试">
+        <mkdir dir="${report.dir}"/>
+        <junit printsummary="on"
+                haltonfailure="false"
+                failureproperty="tests.failed"
+                showoutput="true">
+            <classpath refid="master-classpath" />
+            <formatter type="plain"/>
+            <batchtest todir="${report.dir}">
+                <fileset dir="${classes.dir}">
+                    <include name="**/*Test.*"/>
+                </fileset>
+            </batchtest>
+        </junit>
+        <fail if="tests.failed">
+        ***********************************************************
+        ****       存在一个或多个错误 ，请检查错误  ......           ****
+        ***********************************************************
+        </fail>
+    </target>
+
+
+    <!--打包成jar -->
+    <target name="pack" depends="compile" description="打jar包">
+    <echo message="生成ascent-acesys.jar"/>
+     <mkdir dir="${dist.dir}" />
+        <jar destfile="${dist.dir}/ascent-acesys.jar" basedir="${classes.dir}">
+            <exclude name="**/*Test.*" />
+            <exclude name="**/Test*.*" />
+        </jar>
+    </target>
+	
+    <!-- WEB应用打成war包 -->
+    <target name="war" depends="pack" description="打war包">
+        <echo message="生成acesys.war"/>
+	     <mkdir dir="${dist.dir}" />
+	        <jar destfile="${dist.dir}/acesys.war" basedir="${webroot.dir}">
+	            <exclude name="**/*Test.*" />
+	            <exclude name="**/Test*.*" />
+	        </jar>
+    </target>
+	
+    <!-- 部署到tomcat webapps目录下-->
+    <target name="deploy-war" depends="war" description="部署到tomcat webapps 目录下">
+        <echo message="部署acesys.war到tomcat的webapps下"/>
+         <copy  todir="${tomcat.dir}/webapps" overwrite="true" >
+            <fileset dir="${dist.dir}">
+		     <include name="acesys.war"/>
+            </fileset>
+        </copy>
+    </target>
+	
+    <!-- 部署mysql数据库文件 -->
+    <target name="deploy-db" depends="deploy-war" description="初始化mysql数据库">
+        <echo message="部署数据库文件到mysql的data目录下"/>
+        <copy todir="${mysql.dir}/data" overwrite="ture">
+            <fileset dir="${db.dir}">
+		   <include name="**/*.*" />
+            </fileset>
+        </copy>
+    </target>
+    <!-- 输出api文档 -->
+    <target name="doc" depends="compile" description="创建api文档">
+        <mkdir dir="${doc.dir}" />
+        <javadoc destdir="${doc.dir}" author="true" version="true" use="true" windowtitle="AscentWeb API">
+            <packageset dir="${src.dir}" defaultexcludes="yes">
+		    <include name="com/ascent/**" />
+            </packageset>
+            <doctitle>
+		    <![CDATA[<h1>AscentWeb电子商务系统（Spring2.0+Hibernate3.1+Struts2.0）</h1>]]></doctitle>
+            <bottom>
+            <![CDATA[<i>Ascent Technologies,Inc,All Rights Reserved.</i>]]></bottom>
+            <tag name="todo" scope="all" description="To do:" />
+       </javadoc>
+</target>
+</project>

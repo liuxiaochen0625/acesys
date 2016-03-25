@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE struts PUBLIC
+"-//Apache Software Foundation//DTD Struts Configuration 2.0//EN"
+"http://struts.apache.org/dtds/struts-2.0.dtd">
+
+<struts>
+	
+	
+	<package name="ascenttech" extends="json-default">
+		
+		<action name="registCheckAction" class="com.ascent.action.RegistCheckAction">
+			<result type="json"></result>
+		</action>
+		<action name="registAction" class="com.ascent.action.RegistAction">
+			<result>/product/regist_succ.jsp</result>
+			<result name="error">/product/register.jsp</result>
+		</action>
+		<action name="usrLoginAction" class="com.ascent.action.UsrLoginAction">
+			<result>/index.jsp</result>
+			<result name="success_1">/product/products.jsp</result>
+			<result name="success_2">/product/products.jsp</result>
+			<result name="success_3">/product/products_showusers.jsp</result>
+			<result name="error">/product/products.jsp</result>
+			<result name="input">/product/products.jsp</result>
+			
+		</action>
+		<action name="*usrManagerAction" class="com.ascent.action.UsrManagerAction" method="{1}">
+			<result></result>
+			<result name="show_users">/product/products_showusers.jsp</result>
+			<result name="updateuser">/product/updateuser.jsp</result>
+			<result name="updateuser_error">/product/updateuser.jsp</result>
+			<result name="changesuperuser_error">/product/changesuperuser.jsp</result>
+			<result name="error">/product/products.jsp</result>
+			<result name="admin_order_user">/product/admin_orderuser.jsp</result>
+			
+			
+		</action>
+		<action name="productIdCheckAction" class="com.ascent.action.ProductIdCheckAction">
+			<result type="json"></result>
+		</action>
+		<action name="*ProductManagerAction" class="com.ascent.action.ProductManagerAction" method="{1}">
+			<!-- 配置fileUpload拦截器 -->
+			<interceptor-ref name="fileUpload">
+				<!-- 设置上传文件类型 -->
+				<param name="allowedTypes">image/bmp,image/png,image/jpg,image/gif,application/vnd.ms-excel </param>
+				<!-- 设置上传文件大小 -->
+				<param name="maximumSize">200000</param>
+			</interceptor-ref>
+			<!-- 必须显示配置引用struts默认的拦截器栈：defaultStack -->
+			<interceptor-ref name="defaultStack"></interceptor-ref>
+			<!-- 设置上传路径 -->
+			<param name="savePath">/upload</param>
+			<result name="adminproductsshow">/product/admin_products_show.jsp</result>
+			<result name="saveOnesuccess">/product/admin_products_show.jsp</result>
+			<!-- 必须设置input逻辑视图，拦截器默认出错返回input -->
+			<result name="input">/product/upload_error.jsp</result>
+			<result name="updateProduct">/product/update_products_admin.jsp</result>
+			<result name="guestproductsshow">/product/products_show.jsp</result>
+			<result name="searchproductshow">/product/products_search_show.jsp</result>
+			<result name="userproducts">/product/userproducts_show.jsp</result>
+			<result name="index">/index.jsp</result>
+			<result name="productdetail">/product/productdetail.jsp</result>
+			
+		</action>
+		<action name="*CartManagerAction" class="com.ascent.action.CartManagerAction" method="{1}">
+			<result name="cartshow">/product/cartshow.jsp</result>
+		</action>
+		<action name="*OrdersManagerAction" class="com.ascent.action.OrdersManagerAction" method="{1}">
+		<result name="checkoutsucc">/product/checkoutsucc.jsp</result>
+		<result name="ordershow">/product/ordershow.jsp</result>
+		<result name="adminordershow">/product/admin_ordershow.jsp</result>
+		</action>
+		<action name="*OrderitemManagerAction" class="com.ascent.action.OrderitemManagerAction" method="{1}">
+		<result name="orderitemshow">/product/orderitem_show.jsp</result>
+		
+		</action>
+		<action name="*MailManagerAction" class="com.ascent.action.MailManagerAction" method="{1}">
+		<result name="addmailsucc">/product/mailmanager_succ.jsp</result>
+		<result name="addmailfail">/product/mailmanager_fail.jsp</result>
+		</action>
+		<action name="userProductAddAction" class="com.ascent.action.UserProductAddAction">
+			<result type="json"></result>
+		</action>
+		<action name="clearSession" class="com.ascent.action.ClearSessionAction">
+			<result>/index.jsp</result>
+		</action>
+		
+	</package>
+	
+	<!-- 此处用constant元素定义常量 -->
+	<constant name="struts.devMode" value="true"/>
+	<!-- 定义资源文件的位置和类型 -->
+	<constant name="struts.custom.i18n.resources" value="properties/myMessages"/>
+	<!-- 设置应用使用的解析码 -->
+	<constant name="struts.i18n.encoding" value="GBK"/>
+	<!-- 设置应用使用的上传解析器类型 -->
+	<constant name="struts.multipart.parser" value="jakarta"/>
+	<!-- 指定使用按type的自动装配策略 -->
+	<constant name="struts.objectFactory.spring.autoWire" value="name"/>
+</struts>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+	xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+	<bean id="dataSource"
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"
+			value="com.mysql.jdbc.Driver">
+		</property>
+		<property name="url"
+			value="jdbc:mysql://localhost:3306/acesys">
+		</property>
+		<property name="username" value="root"></property>
+		<property name="password" value="root"></property>
+	</bean>
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource">
+			<ref bean="dataSource" />
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">
+					org.hibernate.dialect.MySQLDialect
+				</prop>
+				<prop key="show_sql">true</prop>
+			</props>
+		</property>
+	
+		<property name="mappingResources">
+			<list>
+				
+				<value>com/ascent/po/Usr.hbm.xml</value>
+				<value>com/ascent/po/Orderitem.hbm.xml</value>
+				<value>com/ascent/po/UserProduct.hbm.xml</value>
+				<value>com/ascent/po/Orders.hbm.xml</value>
+				<value>com/ascent/po/Product.hbm.xml</value>
+				<value>com/ascent/po/Mailtb.hbm.xml</value></list>
+		</property></bean>
+	 <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+
+    <bean id="transactionInterceptor" class="org.springframework.transaction.interceptor.TransactionInterceptor">
+	    <!--  事务拦截器bean需要依赖注入一个事务管理器 -->
+        <property name="transactionManager" ref="transactionManager"/>
+    	<property name="transactionAttributes">
+		    <!--  下面定义事务传播属性-->
+		    <props>
+			    <prop key="find*,get*">PROPAGATION_REQUIRED,readOnly</prop>
+		    	<prop key="save*,update*,delete*">PROPAGATION_REQUIRED</prop>
+		    </props>
+	    </property>
+	</bean>
+
+    <!-- 定义BeanNameAutoProxyCreator-->
+    <bean class="org.springframework.aop.framework.autoproxy.BeanNameAutoProxyCreator">
+	    <!--  指定对满足哪些bean name的bean自动生成业务代理 -->
+	    <property name="beanNames">
+            <!--  下面是所有需要自动创建事务代理的bean-->
+            <list>
+                <value>usrService</value>
+                <value>productService</value>
+                <value>userProductService</value>
+                <value>ordersService</value>
+                <value>orderitemService</value>
+                <value>mailService</value>
+            </list>
+            <!--  此处可增加其他需要自动创建事务代理的bean-->
+	    </property>
+        <!--  下面定义BeanNameAutoProxyCreator所需的事务拦截器-->
+        <property name="interceptorNames">
+            <list>
+                <!-- 此处可增加其他新的Interceptor -->
+                <value>transactionInterceptor</value> 
+            </list>
+        </property>
+    </bean>	
+	<bean id="usrDAO"
+		class="com.ascent.dao.impl.UsrDAOImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="usrService"
+		class="com.ascent.service.impl.UsrServiceImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="usrDAO">
+			<ref local="usrDAO" />
+		</property>
+	</bean>
+	<bean id="productDAO" class="com.ascent.dao.impl.ProductDAOImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="productService"
+		class="com.ascent.service.impl.ProductServiceImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="productDAO">
+			<ref local="productDAO" />
+		</property>
+	</bean>
+	<bean id="userProductDAO"
+		class="com.ascent.dao.impl.UserProductDAOImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="userProductService"
+		class="com.ascent.service.impl.UserProductServiceImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="userProductDAO">
+			<ref local="userProductDAO" />
+		</property>
+	</bean>
+	<bean id="ordersDAO" class="com.ascent.dao.impl.OrdersDAOImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="ordersService"
+		class="com.ascent.service.impl.OrdersServiceImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="ordersDAO">
+			<ref local="ordersDAO" />
+		</property>
+	</bean>
+	<bean id="orderitemDAO" class="com.ascent.dao.impl.OrderitemDAOImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="orderitemService"
+		class="com.ascent.service.impl.OrderitemServiceImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="orderitemDAO">
+			<ref local="orderitemDAO" />
+		</property>
+	</bean>
+	<bean id="mailDAO" class="com.ascent.dao.impl.MailDAOImpl"
+		abstract="false" lazy-init="default" autowire="default"
+		dependency-check="default">
+		<property name="sessionFactory">
+			<ref local="sessionFactory" />
+		</property>
+	</bean>
+	<bean id="mailService"
+		class="com.ascent.service.impl.MailServiceImpl" abstract="false"
+		lazy-init="default" autowire="default" dependency-check="default">
+		<property name="mailDAO">
+			<ref local="mailDAO" />
+		</property>
+	</bean></beans>
